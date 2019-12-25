@@ -12,9 +12,9 @@ class Network:
 
         np.random.seed(rand_seed)
 
-        self.weights = [np.random.randn(self.architecture[n + 1], self.architecture[n]) * 0.1
-                        for n in range(len(self.architecture) - 1)]
-        self.absolute_term = [np.random.randn(self.architecture[n], 1) * 0.1
+        self.weights = [np.random.randn(self.architecture[n], self.architecture[n - 1]) * 0.1
+                        for n in range(1, len(self.architecture))]
+        self.absolute_term = [np.random.randn(self.architecture[n]) * 0.1
                               for n in range(1, len(self.architecture))]
         # for a in range(len(self.absolute_term[0])):
         #     self.absolute_term[0][a] = 0
@@ -30,11 +30,12 @@ class Network:
         return 1./(1 + np.exp(-x))
 
     def forward_propagation(self, input):
-        output = np.array(input).T
+        output = np.array(input)
         for w, b in zip(self.weights, self.absolute_term):
-            prep = np.dot(w, output.T)
+            prep = np.dot(w, output)
             layer = prep + b.T
-            output = self.sigmoid(layer)
+
+            output = self.sigmoid(layer.T)
 
         return output
 
@@ -59,14 +60,24 @@ def draw(input):
     plt.savefig('sample.png')
 
 
+def one_hot_encoder(x):
+    vec = [0 for _ in range(10)]
+    vec[x] = 1
+    return vec
+
+
 if __name__ == '__main__':
     train_data = pd.read_csv('train.csv', nrows=10)
 
     input = train_data.values.tolist()[9][1:]
+    answer = train_data.values.tolist()[9][0]
 
-    nn_arch = [28 * 28, 14 * 14, 7 * 7, 7 * 7, 10]
+    nn_arch = [28 * 28, 14 * 14, 7 * 7, 10]
 
-    network = Network([4, 8, 8, 2], 0.1)
-    print(network.forward_propagation([20, 2, 3, 4]))
+    network = Network(nn_arch, 0.1)
+    guess = network.forward_propagation(input)
+    # print(answer, guess, sep=' - ')
+    # print(network.cross_entropy_loss(one_hot_encoder(answer), guess))
+    print(guess)
 
     # draw(input)
