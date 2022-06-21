@@ -6,6 +6,6 @@ setuptools.setup(
     install_requires=[
         'pandas==0.25.3',
         'matplotlib==3.1.2',
-        'numpy==1.18.0'
+        'numpy==1.22.0'
     ]
 )
